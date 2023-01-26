@@ -5,3 +5,4 @@ venv/
 # Anki
 *.ankiaddon
 ankidata/
+src/user_files/**
