@@ -10,3 +10,7 @@ src/user_files/**
 # Web
 node_modules/
 src/web/vendor/
+
+# Misc
+demos/
+TODO.md

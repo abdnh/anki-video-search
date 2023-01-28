@@ -5,7 +5,11 @@ import os
 import subprocess
 from pathlib import Path
 
-from anki.utils import isWin
+try:
+    from anki.utils import is_win
+except ImportError:
+    from anki.utils import isWin as is_win
+
 from aqt.main import AnkiQt
 
 from . import consts
@@ -14,7 +18,7 @@ from . import consts
 def set_media_folder(path: str | Path) -> None:
     if consts.MEDIA_PATH.exists():
         consts.MEDIA_PATH.rmdir()
-    if isWin:
+    if is_win:
         subprocess.run(
             'mklink /J "{}" "{}"'.format(str(consts.MEDIA_PATH), str(path)),
             check=True,
