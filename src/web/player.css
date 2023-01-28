@@ -1,0 +1,22 @@
+.vs-player-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.vs-playlist-button {
+    width: 46px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position-y: center;
+    cursor: pointer;
+    margin: 8px;
+}
+
+.vs-prev-button {
+    background-image: url("arrow-left-circle-fill.svg");
+}
+
+.vs-next-button {
+    background-image: url("arrow-right-circle-fill.svg");
+}

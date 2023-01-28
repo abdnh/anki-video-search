@@ -6,3 +6,7 @@ venv/
 *.ankiaddon
 ankidata/
 src/user_files/**
+
+# Web
+node_modules/
+src/web/vendor/
