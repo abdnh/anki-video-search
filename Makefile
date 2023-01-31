@@ -8,7 +8,7 @@ zip: $(PACKAGE_NAME).ankiaddon
 $(PACKAGE_NAME).ankiaddon: src/*
 	rm -f $@
 	rm -rf src/__pycache__
-	( cd src/; zip -r ../$@ * -x meta.json -x user_files/**/ )
+	( cd src/; zip -r ../$@ * -x meta.json -x "user_files/media/*" -x "user_files/*.db" )
 
 vendor:
 	./vendor.sh
