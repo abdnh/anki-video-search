@@ -1,0 +1,6 @@
+aqt
+PyQt6==6.4.0
+mypy==0.971
+pylint==2.15.0
+isort==5.10.1
+black==22.8.0

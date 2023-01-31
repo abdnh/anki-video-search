@@ -1,3 +1,5 @@
+pip install -r requirements.txt -t src/vendor
+
 npm install
 cp node_modules/video.js/dist/video.min.js src/web/vendor
 cp node_modules/video.js/dist/video-js.min.css src/web/vendor

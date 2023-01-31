@@ -14,7 +14,7 @@ vendor:
 	./vendor.sh
 
 fix:
-	python -m black src
+	python -m black src --exclude=vendor
 	python -m isort src
 
 mypy:

@@ -7,10 +7,9 @@ venv/
 ankidata/
 src/user_files/**
 
-# Web
+# Misc
 node_modules/
 src/web/vendor/
-
-# Misc
+src/vendor/
 demos/
 TODO.md
