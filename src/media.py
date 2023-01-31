@@ -36,7 +36,10 @@ class Media:
         self.path = path
         self.web_base = web_base
         # TODO: more sophisticated subtitle matching
-        self.subtitles = [path.with_suffix(".vtt")]
+        self.subtitles = []
+        vtt_sub = path.with_suffix(".vtt")
+        if vtt_sub.exists():
+            self.subtitles.append(vtt_sub)
 
     def to_playlist_entry(self) -> dict:
         """Convert to the JSON structure expected by videojs-playlist"""
