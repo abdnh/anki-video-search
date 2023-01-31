@@ -4,6 +4,12 @@ function VSInitPlayer(id, playlist) {
     });
     player.playlist(playlist);
     player.playlist.autoadvance(0);
+    player.on("playlistitem", () => {
+        if (player.textTracks()[0]) {
+            player.textTracks()[0].mode = "showing";
+        }
+        player.currentTime(playlist[player.playlist.currentIndex()].startTime);
+    });
 }
 
 function VSGetPlayer(id) {

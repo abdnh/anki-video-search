@@ -1,15 +1,30 @@
+from __future__ import annotations
+
 import datetime
 import sqlite3
+from typing import TYPE_CHECKING
 
 from aqt.main import AnkiQt
 
-from . import consts, media
+from . import consts
+
+if TYPE_CHECKING:
+    from .media import Subtitle
 
 
 def time_to_seconds(time: datetime.time) -> float:
     return (
         time.hour * 3600 + time.minute * 60 + time.second + time.microsecond / 1000000
     )
+
+
+def escape_search(text: str) -> str:
+    text = text.replace("\\", "\\\\")
+    text = text.replace("%", "\\%")
+    text = text.replace("_", "\\_")
+    # Treat * as a wildcard
+    text = text.replace("*", "%")
+    return text
 
 
 class DB:
@@ -30,10 +45,10 @@ class DB:
         """
         )
 
-    def rebuild(self) -> None:
+    def rebuild(self, subtitles: list[Subtitle]) -> None:
         values = []
-        self.conn.execute("DELETE FROM subtitles")
-        for subtitle in media.get_all_subs():
+        self.conn.execute("DELETE FROM subtitles;")
+        for subtitle in subtitles:
             values.append(
                 (
                     subtitle.text,
@@ -44,6 +59,13 @@ class DB:
             )
         with self.conn:
             self.conn.executemany(
-                "INSERT INTO subtitles(text, start, end, video) VALUES (?, ?, ?, ?)",
+                "INSERT INTO subtitles(text, start, end, video) VALUES (?, ?, ?, ?);",
                 values,
             )
+
+    def search(self, text: str) -> list[tuple[str, int]]:
+        text = escape_search(text)
+        return self.conn.execute(
+            f"SELECT video, start FROM subtitles WHERE text LIKE '%' || ? || '%' ESCAPE '\\' ORDER BY video, start;",
+            (text,),
+        ).fetchall()

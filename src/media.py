@@ -17,6 +17,7 @@ except ImportError:
 from aqt.main import AnkiQt
 
 from . import consts
+from .db import DB
 
 
 def set_media_folder(path: str | Path) -> None:
@@ -36,9 +37,10 @@ class Media:
     path: Path
     subtitles: list[Path]
 
-    def __init__(self, path: Path, web_base: str) -> None:
+    def __init__(self, path: Path, web_base: str = "", start: int = 0) -> None:
         self.path = path
         self.web_base = web_base
+        self.start = start
         # TODO: more sophisticated subtitle matching
         self.subtitles = []
         vtt_sub = path.with_suffix(".vtt")
@@ -64,7 +66,7 @@ class Media:
                     "label": "English",
                 }
             )
-        return {"sources": sources, "textTracks": text_tracks}
+        return {"sources": sources, "textTracks": text_tracks, "startTime": self.start}
 
 
 @dataclass
@@ -75,14 +77,19 @@ class Subtitle:
     video: str
 
 
-def get_all_media(mw: AnkiQt | None = None) -> list[Media]:
+def get_all_media() -> list[Media]:
     media_list = []
-    web_base = ""
-    if mw:
-        web_base = f"/_addons/{mw.addonManager.addonFromModule(__name__)}/user_files/{consts.MEDIA_PATH.name}/"
     # TODO: support more formats
     for path in consts.MEDIA_PATH.glob("*.webm"):
-        media_list.append(Media(path, web_base))
+        media_list.append(Media(path))
+    return media_list
+
+
+def get_matching_media(mw: AnkiQt, db: DB, text: str) -> list[Media]:
+    media_list = []
+    web_base = f"/_addons/{mw.addonManager.addonFromModule(__name__)}/user_files/{consts.MEDIA_PATH.name}/"
+    for video, start in db.search(text):
+        media_list.append(Media(consts.MEDIA_PATH / video, web_base, start))
     return media_list
 
 

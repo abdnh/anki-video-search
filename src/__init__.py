@@ -43,7 +43,7 @@ def open_folder() -> None:
 
 def rebuild_db() -> None:
     def op(col: Collection) -> None:
-        db.rebuild()
+        db.rebuild(media.get_all_subs())
 
     def on_success(_: Any) -> None:
         tooltip("Database rebuilt")
@@ -63,7 +63,15 @@ def add_field_filter(
     ctx.extra_state.setdefault("vsplayer_id", 0)
     player_id = ctx.extra_state["vsplayer_id"]
     ctx.extra_state["vsplayer_id"] += 1
-    playlist = [m.to_playlist_entry() for m in media.get_all_media(mw)]
+    playlist = [
+        m.to_playlist_entry() for m in media.get_matching_media(mw, db, field_text)
+    ]
+
+    if not playlist:
+        return (
+            "<div style='color: red'>No videos matching '%s' were found.</div>"
+            % field_text
+        )
 
     # TODO: show current video's number and total video count
     return """
