@@ -1,4 +1,4 @@
-function VSInitPlayer(id, playlist, autoplay) {
+function VSInitPlayer(id, playlist, autoplay, delay) {
     const player = videojs(`vs-player-${id}`, {
         playbackRates: [0.5, 1, 1.5, 2],
     });
@@ -19,7 +19,7 @@ function VSInitPlayer(id, playlist, autoplay) {
         if (player.textTracks()[0]) {
             player.textTracks()[0].mode = "showing";
         }
-        player.currentTime(playlist[player.playlist.currentIndex()].startTime);
+        player.currentTime(playlist[player.playlist.currentIndex()].startTime - delay);
     });
 }
 

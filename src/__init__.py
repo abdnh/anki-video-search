@@ -63,6 +63,16 @@ def get_filter_bool_option(
     return v != "False"
 
 
+def get_filter_int_option(options: dict[str, str], key: str) -> int:
+    v = options.get(key, None)
+    if not v:
+        return 0
+    try:
+        return int(v)
+    except ValueError:
+        return 0
+
+
 def add_field_filter(
     field_text: str, field_name: str, filter_name: str, ctx: TemplateRenderContext
 ) -> str:
@@ -82,6 +92,7 @@ def add_field_filter(
             options[p[0]] = "True"
 
     autoplay = get_filter_bool_option(options, "autoplay")
+    delay = get_filter_int_option(options, "delay")
     playlist = [
         m.to_playlist_entry() for m in media.get_matching_media(mw, db, field_text)
     ]
@@ -112,13 +123,14 @@ def add_field_filter(
                 onclick="VSPlayerNext(%(id)s)"
             ></a>
             <script>
-                VSInitPlayer(%(id)s, %(playlist)s, %(autoplay)d);
+                VSInitPlayer(%(id)s, %(playlist)s, %(autoplay)d, %(delay)d);
             </script>
         </div>
     """ % dict(
         id=player_id,
         playlist=json.dumps(playlist),
         autoplay=autoplay,
+        delay=delay,
     )
 
 
