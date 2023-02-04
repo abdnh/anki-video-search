@@ -152,22 +152,34 @@ def accept_fullscreen_request(request: QWebEngineFullScreenRequest) -> None:
     request.accept()
 
 
-menu = QMenu(consts.ADDON_NAME)
-action1 = QAction("Open media folder")
-qconnect(action1.triggered, open_folder)
-menu.addAction(action1)
-action2 = QAction("Configure media folder")
-qconnect(action2.triggered, configure_folder)
-menu.addAction(action2)
-action3 = QAction("Rebuild database")
-qconnect(action3.triggered, rebuild_db)
-menu.addAction(action3)
-mw.form.menuTools.addMenu(menu)
-mw.addonManager.setWebExports(__name__, r"(user_files/media/.*)|(web/.*)")
-hooks.field_filter.append(add_field_filter)
-gui_hooks.webview_will_set_content.append(inject_web_content)
+def enable_fullscreen() -> None:
+    mw.reviewer.web.settings().setAttribute(
+        QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, True
+    )
+    qconnect(mw.reviewer.web.page().fullScreenRequested, accept_fullscreen_request)
+
+
+def add_menu() -> None:
+    menu = QMenu(consts.ADDON_NAME, mw)
+    action1 = QAction("Open media folder", menu)
+    qconnect(action1.triggered, open_folder)
+    menu.addAction(action1)
+    action2 = QAction("Configure media folder", menu)
+    qconnect(action2.triggered, configure_folder)
+    menu.addAction(action2)
+    action3 = QAction("Rebuild database", menu)
+    qconnect(action3.triggered, rebuild_db)
+    menu.addAction(action3)
+    mw.form.menuTools.addMenu(menu)
+
+
+def register_hooks() -> None:
+    mw.addonManager.setWebExports(__name__, r"(user_files/media/.*)|(web/.*)")
+    hooks.field_filter.append(add_field_filter)
+    gui_hooks.webview_will_set_content.append(inject_web_content)
+
+
 db = DB(mw)
-mw.reviewer.web.settings().setAttribute(
-    QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, True
-)
-qconnect(mw.reviewer.web.page().fullScreenRequested, accept_fullscreen_request)
+add_menu()
+register_hooks()
+enable_fullscreen()
