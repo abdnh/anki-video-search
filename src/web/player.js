@@ -5,6 +5,14 @@ function VSInitPlayer(id, playlist) {
     player.playlist(playlist);
     player.playlist.autoadvance(0);
     player.on("playlistitem", () => {
+        const playerContainer = document.getElementById(
+            `vs-player-container-${id}`
+        );
+        const statusElement =
+            playerContainer.getElementsByClassName("vs-playlist-status")[0];
+        statusElement.textContent = `${player.playlist.currentIndex() + 1} of ${
+            player.playlist().length
+        }`;
         if (player.textTracks()[0]) {
             player.textTracks()[0].mode = "showing";
         }

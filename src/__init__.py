@@ -73,18 +73,25 @@ def add_field_filter(
             % field_text
         )
 
-    # TODO: show current video's number and total video count
     return """
-        <div class="vs-player-container">
-            <a class="vs-playlist-button vs-prev-button" onclick="VSPlayerPrevious(%(id)s)"></a>
-            <video
-                id="vs-player-%(id)s"
-                class="video-js"
-                controls
-                preload="auto"
->
-            </video>
-            <a class="vs-playlist-button vs-next-button" onclick="VSPlayerNext(%(id)s)"></a>
+        <div class="vs-player-container" id="vs-player-container-%(id)s">
+            <a
+                class="vs-playlist-button vs-prev-button"
+                onclick="VSPlayerPrevious(%(id)s)"
+            ></a>
+            <div class="vs-player-main-view">
+                <video
+                    id="vs-player-%(id)s"
+                    class="video-js"
+                    controls
+                    preload="auto"
+                ></video>
+                <div class="vs-playlist-status"></div>
+            </div>
+            <a
+                class="vs-playlist-button vs-next-button"
+                onclick="VSPlayerNext(%(id)s)"
+            ></a>
             <script>
                 VSInitPlayer(%(id)s, %(playlist)s);
             </script>
