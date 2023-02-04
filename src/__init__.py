@@ -148,6 +148,10 @@ def inject_web_content(web_content: WebContent, context: object | None) -> None:
     web_content.css.append(f"{web_base}/vendor/video-js.min.css")
 
 
+def accept_fullscreen_request(request: QWebEngineFullScreenRequest) -> None:
+    request.accept()
+
+
 menu = QMenu(consts.ADDON_NAME)
 action1 = QAction("Open media folder")
 qconnect(action1.triggered, open_folder)
@@ -163,3 +167,7 @@ mw.addonManager.setWebExports(__name__, r"(user_files/media/.*)|(web/.*)")
 hooks.field_filter.append(add_field_filter)
 gui_hooks.webview_will_set_content.append(inject_web_content)
 db = DB(mw)
+mw.reviewer.web.settings().setAttribute(
+    QWebEngineSettings.WebAttribute.FullScreenSupportEnabled, True
+)
+qconnect(mw.reviewer.web.page().fullScreenRequested, accept_fullscreen_request)
