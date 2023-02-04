@@ -1,9 +1,12 @@
-function VSInitPlayer(id, playlist) {
+function VSInitPlayer(id, playlist, autoplay) {
     const player = videojs(`vs-player-${id}`, {
         playbackRates: [0.5, 1, 1.5, 2],
     });
     player.playlist(playlist);
     player.playlist.autoadvance(0);
+    if (autoplay) {
+        player.play();
+    }
     player.on("playlistitem", () => {
         const playerContainer = document.getElementById(
             `vs-player-container-${id}`

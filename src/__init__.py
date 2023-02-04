@@ -54,6 +54,15 @@ def rebuild_db() -> None:
     query_op.run_in_background()
 
 
+def get_filter_bool_option(
+    options: dict[str, str], key: str, default: bool = False
+) -> bool:
+    v = options.get(key, None)
+    if not v:
+        return default
+    return v != "False"
+
+
 def add_field_filter(
     field_text: str, field_name: str, filter_name: str, ctx: TemplateRenderContext
 ) -> str:
@@ -63,6 +72,16 @@ def add_field_filter(
     ctx.extra_state.setdefault("vsplayer_id", 0)
     player_id = ctx.extra_state["vsplayer_id"]
     ctx.extra_state["vsplayer_id"] += 1
+
+    options = {}
+    for opt in filter_name.split()[1:]:
+        p = opt.split("=")
+        if len(p) > 1:
+            options[p[0]] = p[1]
+        else:
+            options[p[0]] = "True"
+
+    autoplay = get_filter_bool_option(options, "autoplay")
     playlist = [
         m.to_playlist_entry() for m in media.get_matching_media(mw, db, field_text)
     ]
@@ -93,12 +112,13 @@ def add_field_filter(
                 onclick="VSPlayerNext(%(id)s)"
             ></a>
             <script>
-                VSInitPlayer(%(id)s, %(playlist)s);
+                VSInitPlayer(%(id)s, %(playlist)s, %(autoplay)d);
             </script>
         </div>
     """ % dict(
         id=player_id,
         playlist=json.dumps(playlist),
+        autoplay=autoplay,
     )
 
 
