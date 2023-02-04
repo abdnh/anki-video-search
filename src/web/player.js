@@ -1,4 +1,4 @@
-function VSInitPlayer(id, playlist, autoplay, delay) {
+function VSInitPlayer(id, playlist, autoplay, autopause, delay) {
     const player = videojs(`vs-player-${id}`, {
         playbackRates: [0.5, 1, 1.5, 2],
     });
@@ -19,8 +19,23 @@ function VSInitPlayer(id, playlist, autoplay, delay) {
         if (player.textTracks()[0]) {
             player.textTracks()[0].mode = "showing";
         }
-        player.currentTime(playlist[player.playlist.currentIndex()].startTime - delay);
+        player.currentTime(
+            playlist[player.playlist.currentIndex()].startTime - delay
+        );
     });
+    let autopaused = false;
+    if (autopause) {
+        player.on("timeupdate", () => {
+            if (
+                !autopaused &&
+                player.currentTime() >=
+                    playlist[player.playlist.currentIndex()].endTime
+            ) {
+                player.pause();
+                autopaused = true;
+            }
+        });
+    }
 }
 
 function VSGetPlayer(id) {

@@ -63,9 +63,9 @@ class DB:
                 values,
             )
 
-    def search(self, text: str) -> list[tuple[str, int]]:
+    def search(self, text: str) -> list[tuple[str, int, int]]:
         text = escape_search(text)
         return self.conn.execute(
-            f"SELECT video, start FROM subtitles WHERE text LIKE '%' || ? || '%' ESCAPE '\\' ORDER BY video, start;",
+            f"SELECT video, start, end FROM subtitles WHERE text LIKE '%' || ? || '%' ESCAPE '\\' ORDER BY video, start;",
             (text,),
         ).fetchall()

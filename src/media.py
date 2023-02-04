@@ -37,10 +37,13 @@ class Media:
     path: Path
     subtitles: list[Path]
 
-    def __init__(self, path: Path, web_base: str = "", start: int = 0) -> None:
+    def __init__(
+        self, path: Path, web_base: str = "", start: int = 0, end: int = 0
+    ) -> None:
         self.path = path
         self.web_base = web_base
         self.start = start
+        self.end = end
         # TODO: more sophisticated subtitle matching
         self.subtitles = []
         vtt_sub = path.with_suffix(".vtt")
@@ -66,7 +69,12 @@ class Media:
                     "label": "English",
                 }
             )
-        return {"sources": sources, "textTracks": text_tracks, "startTime": self.start}
+        return {
+            "sources": sources,
+            "textTracks": text_tracks,
+            "startTime": self.start,
+            "endTime": self.end,
+        }
 
 
 @dataclass
@@ -88,8 +96,8 @@ def get_all_media() -> list[Media]:
 def get_matching_media(mw: AnkiQt, db: DB, text: str) -> list[Media]:
     media_list = []
     web_base = f"/_addons/{mw.addonManager.addonFromModule(__name__)}/user_files/{consts.MEDIA_PATH.name}/"
-    for video, start in db.search(text):
-        media_list.append(Media(consts.MEDIA_PATH / video, web_base, start))
+    for video, start, end in db.search(text):
+        media_list.append(Media(consts.MEDIA_PATH / video, web_base, start, end))
     return media_list
 
 
