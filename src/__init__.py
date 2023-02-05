@@ -21,6 +21,7 @@ sys.path.append(str(consts.VENDOR_DIR))
 
 from . import media
 from .db import DB
+from .shortcuts import register_shortcuts
 
 db: DB
 anki_version = tuple(int(p) for p in appVersion.split("."))
@@ -94,9 +95,10 @@ def add_field_filter(
     autoplay = get_filter_bool_option(options, "autoplay")
     autopause = get_filter_bool_option(options, "autopause", True)
     delay = get_filter_int_option(options, "delay")
-    playlist = [
-        m.to_playlist_entry() for m in media.get_matching_media(mw, db, field_text)
-    ]
+    playlist = []
+    for m in media.get_matching_media(mw, db, field_text):
+        m.start -= delay
+        playlist.append(m.to_playlist_entry())
 
     if not playlist:
         return (
@@ -124,7 +126,7 @@ def add_field_filter(
                 onclick="VSPlayerNext(%(id)s)"
             ></a>
             <script>
-                VSInitPlayer(%(id)s, %(playlist)s, %(autoplay)d, %(autopause)d, %(delay)d);
+                VSInitPlayer(%(id)s, %(playlist)s, %(autoplay)d, %(autopause)d);
             </script>
         </div>
     """ % dict(
@@ -132,7 +134,6 @@ def add_field_filter(
         playlist=json.dumps(playlist),
         autoplay=autoplay,
         autopause=autopause,
-        delay=delay,
     )
 
 
@@ -177,6 +178,7 @@ def register_hooks() -> None:
     mw.addonManager.setWebExports(__name__, r"(user_files/media/.*)|(web/.*)")
     hooks.field_filter.append(add_field_filter)
     gui_hooks.webview_will_set_content.append(inject_web_content)
+    gui_hooks.state_shortcuts_will_change.append(register_shortcuts)
 
 
 db = DB(mw)

@@ -1,0 +1,13 @@
+{
+    "shortcuts": {
+        "repeat": "K",
+        "previous": "J",
+        "next": "L",
+        "pause": "P",
+        "reset_speed": "\\",
+        "slow_down": "[",
+        "speed_up": "]",
+        "backward": "z",
+        "forward": "x"
+    }
+}

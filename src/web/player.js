@@ -1,4 +1,6 @@
-function VSInitPlayer(id, playlist, autoplay, autopause, delay) {
+let VS_CURRENT_PLAYER_ID;
+
+function VSInitPlayer(id, playlist, autoplay, autopause) {
     const player = videojs(`vs-player-${id}`, {
         playbackRates: [0.5, 1, 1.5, 2],
     });
@@ -19,9 +21,10 @@ function VSInitPlayer(id, playlist, autoplay, autopause, delay) {
         if (player.textTracks()[0]) {
             player.textTracks()[0].mode = "showing";
         }
-        player.currentTime(
-            playlist[player.playlist.currentIndex()].startTime - delay
-        );
+        player.currentTime(playlist[player.playlist.currentIndex()].startTime);
+    });
+    player.on("play", () => {
+        VS_CURRENT_PLAYER_ID = id;
     });
     let autopaused = false;
     if (autopause) {
@@ -40,6 +43,11 @@ function VSInitPlayer(id, playlist, autoplay, autopause, delay) {
 
 function VSGetPlayer(id) {
     return videojs(`vs-player-${id}`);
+}
+
+function VSGetCurrentPlayer() {
+    if (typeof VS_CURRENT_PLAYER_ID === "undefined") return null;
+    return VSGetPlayer(VS_CURRENT_PLAYER_ID);
 }
 
 function VSPlayerNext(id) {
