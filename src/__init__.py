@@ -4,6 +4,7 @@ import json
 from typing import Any
 
 from anki import hooks
+from anki.cards import Card
 from anki.collection import Collection
 from anki.template import TemplateRenderContext
 from aqt import appVersion, gui_hooks, mw
@@ -149,6 +150,20 @@ def inject_web_content(web_content: WebContent, context: object | None) -> None:
     web_content.css.append(f"{web_base}/vendor/video-js.min.css")
 
 
+def on_card_will_show(text: str, card: Card, kind: str) -> str:
+    text = (
+        """\
+    <script>
+        for(const player of videojs.getAllPlayers()) {
+            player.dispose();
+        }
+    </script>
+    """
+        + text
+    )
+    return text
+
+
 def accept_fullscreen_request(request: QWebEngineFullScreenRequest) -> None:
     request.accept()
 
@@ -179,6 +194,7 @@ def register_hooks() -> None:
     hooks.field_filter.append(add_field_filter)
     gui_hooks.webview_will_set_content.append(inject_web_content)
     gui_hooks.state_shortcuts_will_change.append(register_shortcuts)
+    gui_hooks.card_will_show.append(on_card_will_show)
 
 
 db = DB(mw)
