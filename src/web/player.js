@@ -21,7 +21,12 @@ function VSInitPlayer(id, playlist, autoplay, autopause) {
         if (player.textTracks()[0]) {
             player.textTracks()[0].mode = "showing";
         }
-        player.currentTime(playlist[player.playlist.currentIndex()].startTime);
+        // Work around player breaking with some videos when going through the playlist quickly
+        setTimeout(() => {
+            player.currentTime(
+                playlist[player.playlist.currentIndex()].startTime
+            );
+        }, 250);
     });
     player.on("play", () => {
         VS_CURRENT_PLAYER_ID = id;
