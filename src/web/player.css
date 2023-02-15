@@ -22,5 +22,11 @@
 }
 
 .vs-playlist-status {
+    margin-bottom: 8px;
+}
+
+.vs-current-sub {
+    font: 30px sans-serif;
     margin-top: 8px;
+    height: 50px;
 }

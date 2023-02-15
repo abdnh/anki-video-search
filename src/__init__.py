@@ -114,13 +114,14 @@ def add_field_filter(
                 onclick="VSPlayerPrevious(%(id)s)"
             ></a>
             <div class="vs-player-main-view">
+                <div class="vs-playlist-status"></div>
                 <video
                     id="vs-player-%(id)s"
                     class="video-js"
                     controls
                     preload="auto"
                 ></video>
-                <div class="vs-playlist-status"></div>
+                <div class="vs-current-sub"></div>
             </div>
             <a
                 class="vs-playlist-button vs-next-button"
@@ -146,8 +147,8 @@ def inject_web_content(web_content: WebContent, context: object | None) -> None:
     web_content.js.append(f"{web_base}/vendor/video.min.js")
     web_content.js.append(f"{web_base}/vendor/videojs-playlist.min.js")
 
-    web_content.css.append(f"{web_base}/player.css")
     web_content.css.append(f"{web_base}/vendor/video-js.min.css")
+    web_content.css.append(f"{web_base}/player.css")
 
 
 def on_card_will_show(text: str, card: Card, kind: str) -> str:

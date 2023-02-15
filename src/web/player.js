@@ -18,8 +18,16 @@ function VSInitPlayer(id, playlist, autoplay, autopause) {
         statusElement.textContent = `${player.playlist.currentIndex() + 1} of ${
             player.playlist().length
         }`;
-        if (player.textTracks()[0]) {
-            player.textTracks()[0].mode = "showing";
+        const currentSubContainer =
+            playerContainer.querySelector(".vs-current-sub");
+        const textTrack = player.textTracks()[0];
+        if (textTrack) {
+            textTrack.mode = "hidden";
+            textTrack.addEventListener("cuechange", () => {
+                const cues = Array.from(textTrack.activeCues);
+                const text = cues.map((cue) => cue.text).join("\n");
+                currentSubContainer.textContent = text;
+            });
         }
         // Work around player breaking with some videos when going through the playlist quickly
         setTimeout(() => {
