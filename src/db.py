@@ -1,21 +1,15 @@
 from __future__ import annotations
 
-import datetime
 import sqlite3
 from typing import TYPE_CHECKING
 
 from aqt.main import AnkiQt
 
 from . import consts
+from .utils import time_to_seconds
 
 if TYPE_CHECKING:
     from .media import Subtitle
-
-
-def time_to_seconds(time: datetime.time) -> float:
-    return (
-        time.hour * 3600 + time.minute * 60 + time.second + time.microsecond / 1000000
-    )
 
 
 def escape_search(text: str) -> str:

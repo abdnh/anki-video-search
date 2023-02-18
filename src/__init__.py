@@ -23,6 +23,7 @@ sys.path.append(str(consts.VENDOR_DIR))
 from . import media
 from .db import DB
 from .shortcuts import register_shortcuts
+from .utils import time_to_seconds
 
 db: DB
 anki_version = tuple(int(p) for p in appVersion.split("."))
@@ -115,12 +116,15 @@ def add_field_filter(
             ></a>
             <div class="vs-player-main-view">
                 <div class="vs-playlist-status"></div>
-                <video
-                    id="vs-player-%(id)s"
-                    class="video-js"
-                    controls
-                    preload="auto"
-                ></video>
+                <div class="vs-horizontal-container">
+                    <video
+                        id="vs-player-%(id)s"
+                        class="video-js"
+                        controls
+                        preload="auto"
+                    ></video>
+                    <div class="vs-subs-panel"></div>
+                </div>
                 <div class="vs-current-sub"></div>
             </div>
             <a
@@ -128,12 +132,13 @@ def add_field_filter(
                 onclick="VSPlayerNext(%(id)s)"
             ></a>
             <script>
-                VSInitPlayer(%(id)s, %(playlist)s, %(autoplay)d, %(autopause)d);
+                VSInitPlayer(%(id)s, %(playlist)s, %(text)s, %(autoplay)d, %(autopause)d);
             </script>
         </div>
     """ % dict(
         id=player_id,
         playlist=json.dumps(playlist),
+        text=json.dumps(field_text),
         autoplay=autoplay,
         autopause=autopause,
     )
@@ -163,6 +168,26 @@ def on_card_will_show(text: str, card: Card, kind: str) -> str:
         + text
     )
     return text
+
+
+def handle_js_msg(
+    handled: tuple[bool, Any], message: str, context: Any
+) -> tuple[bool, Any]:
+    if not message.startswith("vs-subs:"):
+        return handled
+    file = message.split(":", maxsplit=1)[1].split("/")[-1]
+    subs = media.get_media_sub(file)
+    data = []
+    for sub in subs:
+        data.append(
+            {
+                "text": sub.text,
+                "start": time_to_seconds(sub.start),
+                "end": time_to_seconds(sub.end),
+            }
+        )
+
+    return (True, data)
 
 
 def accept_fullscreen_request(request: QWebEngineFullScreenRequest) -> None:
@@ -196,6 +221,7 @@ def register_hooks() -> None:
     gui_hooks.webview_will_set_content.append(inject_web_content)
     gui_hooks.state_shortcuts_will_change.append(register_shortcuts)
     gui_hooks.card_will_show.append(on_card_will_show)
+    gui_hooks.webview_did_receive_js_message.append(handle_js_msg)
 
 
 db = DB(mw)

@@ -30,3 +30,36 @@
     margin-top: 8px;
     height: 50px;
 }
+
+.vs-horizontal-container {
+    display: flex;
+    flex-direction: row;
+    height: 75vh;
+}
+
+.vs-subs-panel {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.vs-panel-sub {
+    margin: 8px;
+    border-bottom: dashed grey 1px;
+    cursor: pointer;
+}
+
+.vs-panel-sub:hover {
+    background-color: aliceblue;
+}
+
+.vs-panel-current-sub {
+    background-color: rgb(150, 201, 246);
+}
+
+.video-js {
+    height: 100%;
+}
+
+.vs-highlight {
+    color: #facc15;
+}

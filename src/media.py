@@ -120,3 +120,22 @@ def get_all_subs() -> list[Subtitle]:
                     )
                 )
     return subtitles
+
+
+def get_media_sub(media_file: str) -> list[Subtitle]:
+    media = Media(consts.MEDIA_PATH / media_file)
+    if not media.subtitles:
+        return []
+
+    subtitles = []
+    subtitle_file = media.subtitles[0]
+    for caption in webvtt.read(subtitle_file):
+        subtitles.append(
+            Subtitle(
+                caption.text,
+                parse_webvtt_timestamp(caption.start),
+                parse_webvtt_timestamp(caption.end),
+                media.path.name,
+            )
+        )
+    return subtitles
