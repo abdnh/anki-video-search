@@ -58,6 +58,7 @@
 
 .video-js {
     height: 100%;
+    min-width: 600px;
 }
 
 .vs-highlight {
