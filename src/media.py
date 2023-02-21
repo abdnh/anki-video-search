@@ -52,10 +52,9 @@ class Media:
 
     def to_playlist_entry(self) -> dict:
         """Convert to the JSON structure expected by videojs-playlist"""
-
         sources = [
             {
-                "src": self.web_base + self.path.name,
+                "src": self.web_base + str(self.path.relative_to(consts.MEDIA_PATH)),
                 "type": mimetypes.guess_type(self.path.as_uri())[0],
             }
         ]
@@ -63,7 +62,7 @@ class Media:
         for subtitle in self.subtitles:
             text_tracks.append(
                 {
-                    "src": self.web_base + subtitle.name,
+                    "src": self.web_base + str(subtitle.relative_to(consts.MEDIA_PATH)),
                     "kind": "captions",
                     "srclang": "en",
                     "label": "English",
@@ -88,7 +87,7 @@ class Subtitle:
 def get_all_media() -> list[Media]:
     media_list = []
     # TODO: support more formats
-    for path in consts.MEDIA_PATH.glob("*.webm"):
+    for path in consts.MEDIA_PATH.rglob("*.webm"):
         media_list.append(Media(path))
     return media_list
 
@@ -116,7 +115,7 @@ def get_all_subs() -> list[Subtitle]:
                         caption.text,
                         parse_webvtt_timestamp(caption.start),
                         parse_webvtt_timestamp(caption.end),
-                        media.path.name,
+                        str(media.path.relative_to(consts.MEDIA_PATH)),
                     )
                 )
     return subtitles
