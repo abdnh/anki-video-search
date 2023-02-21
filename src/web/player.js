@@ -1,4 +1,5 @@
 let VS_CURRENT_PLAYER_ID;
+let VS_PLAYBACKRATE = 1;
 
 function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
     const player = videojs(`vs-player-${id}`, {
@@ -80,11 +81,12 @@ function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
             }
         });
 
-        // Work around player breaking with some videos when going through the playlist quickly
         setTimeout(() => {
+            // Work around player breaking with some videos when going through the playlist quickly
             player.currentTime(
                 playlist[player.playlist.currentIndex()].startTime
             );
+            player.playbackRate(VS_PLAYBACKRATE);
         }, 250);
     });
     player.on("play", () => {
@@ -116,10 +118,12 @@ function VSGetCurrentPlayer() {
 
 function VSPlayerNext(id) {
     const player = VSGetPlayer(id);
+    VS_PLAYBACKRATE = player.playbackRate();
     player.playlist.next();
 }
 
 function VSPlayerPrevious(id) {
     const player = VSGetPlayer(id);
+    VS_PLAYBACKRATE = player.playbackRate();
     player.playlist.previous();
 }
