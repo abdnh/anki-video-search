@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import glob
 import mimetypes
 import os
 import subprocess
@@ -44,11 +45,9 @@ class Media:
         self.web_base = web_base
         self.start = start
         self.end = end
-        # TODO: more sophisticated subtitle matching
         self.subtitles = []
-        vtt_sub = path.with_suffix(".vtt")
-        if vtt_sub.exists():
-            self.subtitles.append(vtt_sub)
+        for sub_path in consts.MEDIA_PATH.rglob(f"*{glob.escape(path.stem)}*.vtt"):
+            self.subtitles.append(sub_path)
 
     def to_playlist_entry(self) -> dict:
         """Convert to the JSON structure expected by videojs-playlist"""
