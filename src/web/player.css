@@ -31,10 +31,16 @@
     height: 50px;
 }
 
-.vs-horizontal-container {
+.vs-vid-panel-container {
     display: flex;
     flex-direction: row;
     height: 75vh;
+}
+
+@media screen and (max-width: 800px) {
+    .vs-vid-panel-container {
+        flex-direction: column;
+    }
 }
 
 .vs-subs-panel {
@@ -59,6 +65,11 @@
 .video-js {
     height: 100%;
     min-width: 600px;
+    max-width: 95vw;
+}
+
+.vs-player-main-view {
+    max-width: 95vw;
 }
 
 .vs-highlight {

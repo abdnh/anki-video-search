@@ -116,7 +116,7 @@ def add_field_filter(
             ></a>
             <div class="vs-player-main-view">
                 <div class="vs-playlist-status"></div>
-                <div class="vs-horizontal-container">
+                <div class="vs-vid-panel-container">
                     <video
                         id="vs-player-%(id)s"
                         class="video-js"
