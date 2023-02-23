@@ -3,7 +3,7 @@ let VS_PLAYBACKRATE = 1;
 
 function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
     const player = videojs(`vs-player-${id}`, {
-        playbackRates: [0.5, 1, 1.5, 2],
+        playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
     });
     player.playlist(playlist);
     player.playlist.autoadvance(0);
