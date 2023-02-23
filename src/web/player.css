@@ -77,3 +77,7 @@
 .vs-highlight {
     color: #facc15;
 }
+
+.vs-nomatch {
+    color: #f54848;
+}

@@ -97,16 +97,6 @@ def add_field_filter(
     autoplay = get_filter_bool_option(options, "autoplay")
     autopause = get_filter_bool_option(options, "autopause", True)
     delay = get_filter_int_option(options, "delay")
-    playlist = []
-    for m in media.get_matching_media(mw, db, field_text):
-        m.start -= delay
-        playlist.append(m.to_playlist_entry())
-
-    if not playlist:
-        return (
-            "<div style='color: red'>No videos matching '%s' were found.</div>"
-            % field_text
-        )
 
     return """
         <div class="vs-player-container" id="vs-player-container-%(id)s">
@@ -132,13 +122,13 @@ def add_field_filter(
                 onclick="VSPlayerNext(%(id)s)"
             ></a>
             <script>
-                VSInitPlayer(%(id)s, %(playlist)s, %(text)s, %(autoplay)d, %(autopause)d);
+                VSInitPlayer(%(id)s, %(text)s, %(delay)d, %(autoplay)d, %(autopause)d);
             </script>
         </div>
     """ % dict(
         id=player_id,
-        playlist=json.dumps(playlist),
         text=json.dumps(field_text),
+        delay=delay,
         autoplay=autoplay,
         autopause=autopause,
     )
@@ -173,19 +163,24 @@ def on_card_will_show(text: str, card: Card, kind: str) -> str:
 def handle_js_msg(
     handled: tuple[bool, Any], message: str, context: Any
 ) -> tuple[bool, Any]:
-    if not message.startswith("vs-subs:"):
+    if not message.startswith("video-search:"):
         return handled
-    file = message.split(":", maxsplit=1)[1].split("/")[-1]
-    subs = media.get_media_sub(file)
+    cmd = json.loads(message.split(":", maxsplit=1)[1])
     data = []
-    for sub in subs:
-        data.append(
-            {
-                "text": sub.text,
-                "start": time_to_seconds(sub.start),
-                "end": time_to_seconds(sub.end),
-            }
-        )
+    if cmd["name"] == "subs":
+        subs = media.get_media_sub(cmd["file"])
+        for sub in subs:
+            data.append(
+                {
+                    "text": sub.text,
+                    "start": time_to_seconds(sub.start),
+                    "end": time_to_seconds(sub.end),
+                }
+            )
+    elif cmd["name"] == "playlist":
+        for m in media.get_matching_media(mw, db, cmd["text"]):
+            m.start -= cmd["delay"]
+            data.append(m.to_playlist_entry())
 
     return (True, data)
 

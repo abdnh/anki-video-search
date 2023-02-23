@@ -1,7 +1,37 @@
 let VS_CURRENT_PLAYER_ID;
 let VS_PLAYBACKRATE = 1;
 
-function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
+function VSInitPlayer(id, searchText, delay, autoplay, autopause) {
+    pycmd(
+        `video-search:${JSON.stringify({
+            name: "playlist",
+            text: searchText,
+            delay: delay,
+        })}`,
+        (playlist) => {
+            _VSInitPlayer(id, playlist, searchText, autoplay, autopause);
+        }
+    );
+}
+
+function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
+    const playerContainer = document.getElementById(
+        `vs-player-container-${id}`
+    );
+    const statusElement =
+        playerContainer.getElementsByClassName("vs-playlist-status")[0];
+    const subsPanel = playerContainer.querySelector(".vs-subs-panel");
+    const currentSubContainer =
+        playerContainer.querySelector(".vs-current-sub");
+    if (!playlist || !playlist.length) {
+        playerContainer.style.display = "none";
+        const errorElement = document.createElement("div");
+        errorElement.classList.add("vs-nomatch");
+        errorElement.textContent = `No videos matching '${searchText}' were found`;
+        playerContainer.insertAdjacentElement("afterend", errorElement);
+        return;
+    }
+
     const player = videojs(`vs-player-${id}`, {
         playbackRates: [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
     });
@@ -32,54 +62,62 @@ function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
     }
 
     player.on("playlistitem", () => {
-        const playerContainer = document.getElementById(
-            `vs-player-container-${id}`
-        );
-        const statusElement =
-            playerContainer.getElementsByClassName("vs-playlist-status")[0];
+        // const playerContainer = document.getElementById(
+        //     `vs-player-container-${id}`
+        // );
+        // const statusElement =
+        //     playerContainer.getElementsByClassName("vs-playlist-status")[0];
         statusElement.textContent = `${player.playlist.currentIndex() + 1} of ${
             player.playlist().length
         }`;
-        const subsPanel = playerContainer.querySelector(".vs-subs-panel");
-        const currentSubContainer =
-            playerContainer.querySelector(".vs-current-sub");
+        // const subsPanel = playerContainer.querySelector(".vs-subs-panel");
+        // const currentSubContainer =
+        //     playerContainer.querySelector(".vs-current-sub");
 
         const textTrack = player.textTracks()[0];
-        pycmd(`vs-subs:${player.src()}`, (subs) => {
-            subsPanel.innerHTML = "";
-            for (let i = 0; i < subs.length; i++) {
-                const sub = subs[i];
-                const subElement = document.createElement("div");
-                subElement.classList.add("vs-panel-sub");
-                subElement.innerHTML = highlightSub(sub.text);
-                subElement.dataset.start = sub.start;
-                subElement.dataset.end = sub.end;
-                subsPanel.append(subElement);
-                textTrack.cues[i].id = i;
-                subElement.addEventListener("click", () => {
-                    player.currentTime(sub.start);
-                });
-            }
-            if (textTrack) {
-                textTrack.mode = "hidden";
-                textTrack.addEventListener("cuechange", () => {
-                    const cues = Array.from(textTrack.activeCues);
-                    const text = cues.map((cue) => cue.text).join("\n");
-                    currentSubContainer.innerHTML = highlightSub(text);
+        pycmd(
+            `video-search:${JSON.stringify({
+                name: "subs",
+                file: player.src(),
+            })}`,
+            (subs) => {
+                subsPanel.innerHTML = "";
+                for (let i = 0; i < subs.length; i++) {
+                    const sub = subs[i];
+                    const subElement = document.createElement("div");
+                    subElement.classList.add("vs-panel-sub");
+                    subElement.innerHTML = highlightSub(sub.text);
+                    subElement.dataset.start = sub.start;
+                    subElement.dataset.end = sub.end;
+                    subsPanel.append(subElement);
+                    textTrack.cues[i].id = i;
+                    subElement.addEventListener("click", () => {
+                        player.currentTime(sub.start);
+                    });
+                }
+                if (textTrack) {
+                    textTrack.mode = "hidden";
+                    textTrack.addEventListener("cuechange", () => {
+                        const cues = Array.from(textTrack.activeCues);
+                        const text = cues.map((cue) => cue.text).join("\n");
+                        currentSubContainer.innerHTML = highlightSub(text);
 
-                    const firstCue = cues[0];
-                    const subElement = subsPanel.children[firstCue.id];
-                    const oldSubElement = subsPanel.querySelector(
-                        ".vs-panel-current-sub"
-                    );
-                    if (oldSubElement) {
-                        oldSubElement.classList.remove("vs-panel-current-sub");
-                    }
-                    subElement.classList.add("vs-panel-current-sub");
-                    subElement.scrollIntoView();
-                });
+                        const firstCue = cues[0];
+                        const subElement = subsPanel.children[firstCue.id];
+                        const oldSubElement = subsPanel.querySelector(
+                            ".vs-panel-current-sub"
+                        );
+                        if (oldSubElement) {
+                            oldSubElement.classList.remove(
+                                "vs-panel-current-sub"
+                            );
+                        }
+                        subElement.classList.add("vs-panel-current-sub");
+                        subElement.scrollIntoView();
+                    });
+                }
             }
-        });
+        );
 
         setTimeout(() => {
             // Work around player breaking with some videos when going through the playlist quickly
