@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import Future
+from dataclasses import dataclass
 from typing import Any
 
 from anki import hooks
@@ -14,7 +16,7 @@ from aqt.operations import QueryOp
 from aqt.qt import *
 from aqt.reviewer import Reviewer
 from aqt.utils import openFolder, tooltip
-from aqt.webview import WebContent
+from aqt.webview import AnkiWebView, WebContent
 
 from . import consts
 
@@ -55,6 +57,23 @@ def rebuild_db() -> None:
     if anki_version >= (2, 1, 50):
         query_op = query_op.with_progress("Rebuilding database...")
     query_op.run_in_background()
+
+
+@dataclass
+class CardContext:
+    card: Card | None = None
+    web: AnkiWebView | None = None
+
+
+def get_active_card_context() -> CardContext:
+    dialog = QApplication.activeModalWidget()
+    if isinstance(dialog, CardLayout):
+        return CardContext(dialog.rendered_card, dialog.preview_web)
+    window = QApplication.activeWindow()
+    if isinstance(window, Previewer):
+        # pylint: disable=protected-access
+        return CardContext(window.card(), window._web)
+    return CardContext(mw.reviewer.card, mw.reviewer.web)
 
 
 def get_filter_bool_option(
@@ -98,8 +117,45 @@ def add_field_filter(
     autopause = get_filter_bool_option(options, "autopause", True)
     delay = get_filter_int_option(options, "delay")
 
+    def task() -> list:
+        playlist: list[dict] = []
+        for m in media.get_matching_media(mw, db, field_text):
+            m.start -= delay
+            playlist.append(m.to_playlist_entry())
+        return playlist
+
+    timer: QTimer
+
+    def on_done(fut: Future) -> None:
+        timer.deleteLater()
+        playlist = fut.result()
+        card_context = get_active_card_context()
+        if (
+            card_context.card
+            and card_context.web
+            and card_context.card.id == ctx.card().id
+        ):
+            card_context.web.eval(
+                """
+                VSInitPlayer(%(id)s, %(playlist)s, %(text)s, %(autoplay)d, %(autopause)d);
+                """
+                % dict(
+                    id=player_id,
+                    playlist=json.dumps(playlist),
+                    text=json.dumps(field_text),
+                    delay=delay,
+                    autoplay=autoplay,
+                    autopause=autopause,
+                )
+            )
+
+    timer = mw.progress.timer(
+        10, lambda: mw.taskman.run_in_background(task, on_done), repeat=False
+    )
+
     return """
-        <div class="vs-player-container" id="vs-player-container-%(id)s">
+        <div class="vs-loading-text">Loading Video Search player...</div>
+        <div style="display: none;" class="vs-player-container" id="vs-player-container-%(id)s">
             <a
                 class="vs-playlist-button vs-prev-button"
                 onclick="VSPlayerPrevious(%(id)s)"
@@ -177,10 +233,6 @@ def handle_js_msg(
                     "end": time_to_seconds(sub.end),
                 }
             )
-    elif cmd["name"] == "playlist":
-        for m in media.get_matching_media(mw, db, cmd["text"]):
-            m.start -= cmd["delay"]
-            data.append(m.to_playlist_entry())
 
     return (True, data)
 
