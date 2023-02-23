@@ -7,7 +7,7 @@ zip: $(PACKAGE_NAME).ankiaddon
 
 $(PACKAGE_NAME).ankiaddon: src/*
 	rm -f $@
-	rm -rf src/__pycache__
+	find src/ -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
 	( cd src/; zip -r ../$@ * -x meta.json -x "user_files/media/*" -x "user_files/*.db" )
 
 vendor:
