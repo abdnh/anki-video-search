@@ -177,9 +177,6 @@ def add_field_filter(
                 class="vs-playlist-button vs-next-button"
                 onclick="VSPlayerNext(%(id)s)"
             ></a>
-            <script>
-                VSInitPlayer(%(id)s, %(text)s, %(delay)d, %(autoplay)d, %(autopause)d);
-            </script>
         </div>
     """ % dict(
         id=player_id,
