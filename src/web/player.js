@@ -108,7 +108,7 @@ function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
                 playlist[player.playlist.currentIndex()].startTime
             );
             player.playbackRate(VS_PLAYBACKRATE);
-        }, 10);
+        }, 100);
     });
     player.on("play", () => {
         VS_CURRENT_PLAYER_ID = id;
