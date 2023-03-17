@@ -1,7 +1,7 @@
 let VS_CURRENT_PLAYER_ID;
 let VS_PLAYBACKRATE = 1;
 
-function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
+function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
     const playerContainer = document.getElementById(
         `vs-player-container-${id}`
     );
@@ -126,6 +126,21 @@ function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
             }
         });
     }
+}
+
+function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
+    // Wait for the player container to be available.
+    // This is needed because Anki renders both card sides's field filters before showing the card,
+    // so we may end up trying to initialize the player before it's placed in the DOM
+    const intervalId = setInterval(() => {
+        const playerContainer = document.getElementById(
+            `vs-player-container-${id}`
+        );
+        if (playerContainer) {
+            clearInterval(intervalId);
+            _VSInitPlayer(id, playlist, searchText, autoplay, autopause);
+        }
+    }, 50);
 }
 
 function VSGetPlayer(id) {
