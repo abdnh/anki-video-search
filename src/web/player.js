@@ -1,6 +1,14 @@
 let VS_CURRENT_PLAYER_ID;
 let VS_PLAYBACKRATE = 1;
 
+function _VSShowError(playerContainer, error) {
+    playerContainer.previousElementSibling.style.display = "none";
+    const errorElement = document.createElement("div");
+    errorElement.classList.add("vs-error");
+    errorElement.textContent = `Video Search error: ${error}`;
+    playerContainer.insertAdjacentElement("afterend", errorElement);
+}
+
 function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
     const playerContainer = document.getElementById(
         `vs-player-container-${id}`
@@ -11,11 +19,10 @@ function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
     const currentSubContainer =
         playerContainer.querySelector(".vs-current-sub");
     if (!playlist || !playlist.length) {
-        playerContainer.previousElementSibling.style.display = "none";
-        const errorElement = document.createElement("div");
-        errorElement.classList.add("vs-nomatch");
-        errorElement.textContent = `No videos matching '${searchText}' were found`;
-        playerContainer.insertAdjacentElement("afterend", errorElement);
+        _VSShowError(
+            playerContainer,
+            `No videos matching '${searchText}' were found`
+        );
         return;
     }
 
@@ -138,7 +145,11 @@ function VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
         );
         if (playerContainer) {
             clearInterval(intervalId);
-            _VSInitPlayer(id, playlist, searchText, autoplay, autopause);
+            try {
+                _VSInitPlayer(id, playlist, searchText, autoplay, autopause);
+            } catch (error) {
+                _VSShowError(playerContainer, error);
+            }
         }
     }, 50);
 }
