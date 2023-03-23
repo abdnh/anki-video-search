@@ -1,5 +1,4 @@
 let VS_CURRENT_PLAYER_ID;
-let VS_PLAYBACKRATE = 1;
 
 function _VSShowError(playerContainer, error) {
     playerContainer.previousElementSibling.style.display = "none";
@@ -114,7 +113,7 @@ function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
             player.currentTime(
                 playlist[player.playlist.currentIndex()].startTime
             );
-            player.playbackRate(VS_PLAYBACKRATE);
+            player.playbackRate(window.VS_PLAYBACKRATE ? window.VS_PLAYBACKRATE : 1);
         }, 100);
     });
     player.on("play", () => {
@@ -165,12 +164,12 @@ function VSGetCurrentPlayer() {
 
 function VSPlayerNext(id) {
     const player = VSGetPlayer(id);
-    VS_PLAYBACKRATE = player.playbackRate();
+    window.VS_PLAYBACKRATE = player.playbackRate();
     player.playlist.next();
 }
 
 function VSPlayerPrevious(id) {
     const player = VSGetPlayer(id);
-    VS_PLAYBACKRATE = player.playbackRate();
+    window.VS_PLAYBACKRATE = player.playbackRate();
     player.playlist.previous();
 }

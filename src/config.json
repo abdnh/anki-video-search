@@ -9,5 +9,6 @@
         "speed_up": "]",
         "backward": "z",
         "forward": "x"
-    }
+    },
+    "playback_rate": 1
 }

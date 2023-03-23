@@ -198,6 +198,11 @@ def inject_web_content(web_content: WebContent, context: object | None) -> None:
     web_content.css.append(f"{web_base}/vendor/video-js.min.css")
     web_content.css.append(f"{web_base}/player.css")
 
+    config = mw.addonManager.getConfig(__name__)
+    web_content.body += "<script>var VS_PLAYBACKRATE = %s;</script>" % json.dumps(
+        config["playback_rate"]
+    )
+
 
 def on_card_will_show(text: str, card: Card, kind: str) -> str:
     text = (
