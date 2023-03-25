@@ -224,11 +224,10 @@ def handle_js_msg(
     if not message.startswith("video-search:"):
         return handled
     cmd = json.loads(message.split(":", maxsplit=1)[1])
-    data = []
+    subs = []
     if cmd["name"] == "subs":
-        subs = media.get_media_sub(cmd["file"])
-        for sub in subs:
-            data.append(
+        for sub in media.get_media_sub(cmd["file"]):
+            subs.append(
                 {
                     "text": sub.text,
                     "start": time_to_seconds(sub.start),
@@ -236,7 +235,7 @@ def handle_js_msg(
                 }
             )
 
-    return (True, data)
+    return (True, subs)
 
 
 def accept_fullscreen_request(request: QWebEngineFullScreenRequest) -> None:

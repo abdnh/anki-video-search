@@ -7,6 +7,7 @@ import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Generator
 
 import webvtt
 
@@ -120,20 +121,16 @@ def get_all_subs() -> list[Subtitle]:
     return subtitles
 
 
-def get_media_sub(media_file: str) -> list[Subtitle]:
+def get_media_sub(media_file: str) -> Generator[Subtitle, None, None]:
     media = Media(consts.MEDIA_PATH / media_file)
     if not media.subtitles:
-        return []
+        return
 
-    subtitles = []
     subtitle_file = media.subtitles[0]
     for caption in webvtt.read(subtitle_file):
-        subtitles.append(
-            Subtitle(
-                caption.text,
-                parse_webvtt_timestamp(caption.start),
-                parse_webvtt_timestamp(caption.end),
-                media.path.name,
-            )
+        yield Subtitle(
+            caption.text,
+            parse_webvtt_timestamp(caption.start),
+            parse_webvtt_timestamp(caption.end),
+            media.path.name,
         )
-    return subtitles
