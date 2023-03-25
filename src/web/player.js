@@ -90,6 +90,7 @@ function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
                         textTrack.mode = "hidden";
                         textTrack.addEventListener("cuechange", () => {
                             const cues = Array.from(textTrack.activeCues);
+                            if(!cues.length) return;
                             const text = cues.map((cue) => cue.text).join("\n");
                             currentSubContainer.innerHTML = highlightSub(text);
 
