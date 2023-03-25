@@ -72,7 +72,7 @@ function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
                     file: player.src(),
                 })}`,
                 (subs) => {
-                    subsPanel.innerHTML = "";
+                    const fragment = new DocumentFragment();
                     for (let i = 0; i < subs.length; i++) {
                         const sub = subs[i];
                         const subElement = document.createElement("div");
@@ -80,17 +80,18 @@ function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
                         subElement.innerHTML = highlightSub(sub.text);
                         subElement.dataset.start = sub.start;
                         subElement.dataset.end = sub.end;
-                        subsPanel.append(subElement);
+                        fragment.append(subElement);
                         textTrack.cues[i].id = i;
                         subElement.addEventListener("click", () => {
                             player.currentTime(sub.start);
                         });
                     }
+                    subsPanel.replaceChildren(...fragment.childNodes);
                     if (textTrack) {
                         textTrack.mode = "hidden";
                         textTrack.addEventListener("cuechange", () => {
                             const cues = Array.from(textTrack.activeCues);
-                            if(!cues.length) return;
+                            if (!cues.length) return;
                             const text = cues.map((cue) => cue.text).join("\n");
                             currentSubContainer.innerHTML = highlightSub(text);
 
@@ -114,7 +115,9 @@ function _VSInitPlayer(id, playlist, searchText, autoplay, autopause) {
             player.currentTime(
                 playlist[player.playlist.currentIndex()].startTime
             );
-            player.playbackRate(window.VS_PLAYBACKRATE ? window.VS_PLAYBACKRATE : 1);
+            player.playbackRate(
+                window.VS_PLAYBACKRATE ? window.VS_PLAYBACKRATE : 1
+            );
         }, 100);
     });
     player.on("play", () => {
