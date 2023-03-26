@@ -40,7 +40,7 @@ class Media:
     subtitles: list[Path]
 
     def __init__(
-        self, path: Path, web_base: str = "", start: int = 0, end: int = 0
+        self, path: Path, web_base: str = "", start: float = 0, end: float = 0
     ) -> None:
         self.path = path
         self.web_base = web_base

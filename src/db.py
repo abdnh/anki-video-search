@@ -32,8 +32,8 @@ class DB:
             """
         CREATE TABLE IF NOT EXISTS subtitles (
             text TEXT,
-            start INT,
-            end INT,
+            start REAL,
+            end REAL,
             video TEXT
         );
         """
@@ -57,7 +57,7 @@ class DB:
                 values,
             )
 
-    def search(self, text: str) -> list[tuple[str, int, int]]:
+    def search(self, text: str) -> list[tuple[str, float, float]]:
         text = escape_search(text)
         return self.conn.execute(
             f"SELECT video, start, end FROM subtitles WHERE text LIKE '%' || ? || '%' ESCAPE '\\' ORDER BY video, start;",
