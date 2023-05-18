@@ -1,15 +1,14 @@
-# Python
-*.pyc
+__pycache__/
 venv/
-
-# Anki
-*.ankiaddon
+.mypy_cache/
 ankidata/
-src/user_files/**
-
-# Misc
+build/
+src/manifest.json
+src/meta.json
+src/forms/
+src/user_files/*/
+src/user_files/*.db
+vendor/
 node_modules/
-src/web/vendor/
-src/vendor/
 demos/
 TODO.md

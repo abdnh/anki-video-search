@@ -1,0 +1,7 @@
+{
+    "name": "Video Search",
+    "package": "video_search",
+    "homepage": "https://github.com/abdnh/anki-video-search",
+    "ankiweb_id": "1",
+    "min_point_version": 45
+}

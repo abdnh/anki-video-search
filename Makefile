@@ -1,27 +1,25 @@
-.PHONY: all zip clean mypy pylint vendor fix
-all: zip
+.PHONY: all zip ankiweb fix mypy pylint vendor clean
 
-PACKAGE_NAME := video_search
+all: zip ankiweb
 
-zip: $(PACKAGE_NAME).ankiaddon
+zip:
+	python -m ankiscripts.build --type package --qt all --exclude user_files/**/ --exclude user_files/*.db
 
-$(PACKAGE_NAME).ankiaddon: src/*
-	rm -f $@
-	find src/ -type f -name '*.py[co]' -delete -o -type d -name __pycache__ -delete
-	( cd src/; zip -r ../$@ * -x meta.json -x "user_files/media/*" -x "user_files/*.db" )
+ankiweb:
+	python -m ankiscripts.build --type ankiweb --qt all --exclude user_files/**/ --exclude user_files/*.db
+
+fix:
+	python -m black src tests --exclude="forms|vendor"
+	python -m isort src tests
+
+mypy:
+	python -m mypy src tests
+
+pylint:
+	python -m pylint src tests
 
 vendor:
 	./vendor.sh
 
-fix:
-	python -m black src --exclude=vendor
-	python -m isort src
-
-mypy:
-	python -m mypy src
-
-pylint:
-	python -m pylint src
-
 clean:
-	rm -f $(PACKAGE_NAME).ankiaddon
+	rm -rf build/
