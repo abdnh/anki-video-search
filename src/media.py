@@ -14,7 +14,7 @@ import webvtt
 try:
     from anki.utils import is_win
 except ImportError:
-    from anki.utils import isWin as is_win
+    from anki.utils import isWin as is_win  # type: ignore
 
 from aqt.main import AnkiQt
 
